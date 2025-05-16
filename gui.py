@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from typing import List, Optional
 import minimax
+import alphabeta
 from evaluation import evaluate as good_evaluate
 from evaluationBad import simple_evaluate as bad_evaluate
 
@@ -40,24 +41,29 @@ class Connect4GUI:
         self.eval_var = tk.StringVar(value='good')
         ttk.Radiobutton(self.menu_frame, text='Classique (bonne)', variable=self.eval_var, value='good').grid(row=2, column=0, sticky='w')
         ttk.Radiobutton(self.menu_frame, text='Simple (mauvaise)', variable=self.eval_var, value='bad').grid(row=3, column=0, sticky='w')
+        # Algorithme
+        ttk.Label(self.menu_frame, text="Algorithme IA :").grid(row=4, column=0, pady=(10,0), sticky='w')
+        self.algo_var = tk.StringVar(value='minimax')
+        ttk.Radiobutton(self.menu_frame, text='Minimax', variable=self.algo_var, value='minimax').grid(row=5, column=0, sticky='w')
+        ttk.Radiobutton(self.menu_frame, text='Alpha-Beta', variable=self.algo_var, value='alphabeta').grid(row=6, column=0, sticky='w')
         # Mode X
-        ttk.Label(self.menu_frame, text="Joueur X :").grid(row=4, column=0, pady=(10,0), sticky='w')
+        ttk.Label(self.menu_frame, text="Joueur X :").grid(row=7, column=0, pady=(10,0), sticky='w')
         self.mode_x = tk.StringVar(value='A')
-        ttk.Radiobutton(self.menu_frame, text='Humain', variable=self.mode_x, value='H').grid(row=5, column=0, sticky='w')
-        ttk.Radiobutton(self.menu_frame, text='IA', variable=self.mode_x, value='A').grid(row=6, column=0, sticky='w')
+        ttk.Radiobutton(self.menu_frame, text='Humain', variable=self.mode_x, value='H').grid(row=8, column=0, sticky='w')
+        ttk.Radiobutton(self.menu_frame, text='IA', variable=self.mode_x, value='A').grid(row=9, column=0, sticky='w')
         # Mode O
-        ttk.Label(self.menu_frame, text="Joueur O :").grid(row=7, column=0, pady=(10,0), sticky='w')
+        ttk.Label(self.menu_frame, text="Joueur O :").grid(row=10, column=0, pady=(10,0), sticky='w')
         self.mode_o = tk.StringVar(value='A')
-        ttk.Radiobutton(self.menu_frame, text='Humain', variable=self.mode_o, value='H').grid(row=8, column=0, sticky='w')
-        ttk.Radiobutton(self.menu_frame, text='IA', variable=self.mode_o, value='A').grid(row=9, column=0, sticky='w')
+        ttk.Radiobutton(self.menu_frame, text='Humain', variable=self.mode_o, value='H').grid(row=11, column=0, sticky='w')
+        ttk.Radiobutton(self.menu_frame, text='IA', variable=self.mode_o, value='A').grid(row=12, column=0, sticky='w')
         # Profondeur
-        ttk.Label(self.menu_frame, text="Profondeur IA :").grid(row=10, column=0, pady=(10,0), sticky='w')
+        ttk.Label(self.menu_frame, text="Profondeur IA :").grid(row=13, column=0, pady=(10,0), sticky='w')
         self.depth_spin = ttk.Spinbox(self.menu_frame, from_=1, to=8, width=5, style='Spinbox.TSpinbox')
         self.depth_spin.set(4)
-        self.depth_spin.grid(row=11, column=0, sticky='w')
+        self.depth_spin.grid(row=14, column=0, sticky='w')
         # Play button
         play_btn = ttk.Button(self.menu_frame, text="Jouer", command=self.start_game)
-        play_btn.grid(row=12, column=0, pady=20)
+        play_btn.grid(row=15, column=0, pady=20)
 
         # Game frame
         self.game_frame = ttk.Frame(self.container)
@@ -68,6 +74,7 @@ class Connect4GUI:
     def start_game(self):
         # Appliquer paramètres
         minimax.evaluate = good_evaluate if self.eval_var.get() == 'good' else bad_evaluate
+        self.use_alphabeta = (self.algo_var.get() == 'alphabeta')
         self.modes = {'X': self.mode_x.get(), 'O': self.mode_o.get()}
         try:
             self.depth = int(self.depth_spin.get())
@@ -114,7 +121,10 @@ class Connect4GUI:
             self.master.after(200, self.ai_move)
 
     def ai_move(self):
-        _, move = minimax.minimax(self.board, self.depth, maximizing_player=(self.current=='X'))
+        if self.use_alphabeta:
+            score, move = alphabeta.alphabeta(self.board, self.depth, float('-inf'), float('inf'), maximizing_player=(self.current=='X'))
+        else:
+            score, move = minimax.minimax(self.board, self.depth, maximizing_player=(self.current=='X'))
         self.try_move(move)
 
     def check_end(self):
