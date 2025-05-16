@@ -62,8 +62,8 @@ def check_win(board: Board, player: str) -> bool:
 
 
 
-def choose_move_ai(board: Board, player: str, depth: int, use_alphabeta: bool = False) -> int:
-    if use_alphabeta:
+def choose_move_ai(board: Board, player: str, depth: int, algo: str) -> int:
+    if algo == 'alphabeta':
         score, move = alphabeta.alphabeta(board, depth, float('-inf'), float('inf'), maximizing_player=(player == 'X'))
     else:
         score, move = minimax.minimax(board, depth, maximizing_player=(player == 'X'))
@@ -73,39 +73,48 @@ def choose_move_ai(board: Board, player: str, depth: int, use_alphabeta: bool = 
 
 
 def play_game():
-    # Choix de la fonction d'évaluation
-    choice = ''
-    while choice not in ['1', '2']:
-        choice = input("Quelle fonction d'évaluation ? 1) classique 2) mauvaise : ").strip()
-    if choice == '1':
-        minimax.evaluate = good_evaluate
-        print("Évaluation classique sélectionnée ! ")
-    else:
-        minimax.evaluate = bad_evaluate
-        print("Évaluation simple (mauvaise) sélectionnée ! ")
+    modes = {}
+    algos = {}
+    depths = {}
 
-    # Choix de l'algorithme
-    algo_choice = ''
-    while algo_choice not in ['1', '2']:
-        algo_choice = input("Quel algo pour l'IA ? 1) Minimax 2) Alpha-Beta : ").strip()
-    use_alphabeta = (algo_choice == '2')
+    # Joueur X
+    mode = ''
+    while mode not in ['H', 'A']:
+        mode = input("Joueur X : (H)umain ou (A)I ? ").strip().upper()
+    modes['X'] = mode
+    if mode == 'A':
+        algo = ''
+        while algo not in ['1', '2']:
+            algo = input("Algorithme IA pour X ? 1) Minimax 2) Alpha-Beta : ").strip()
+        algos['X'] = 'minimax' if algo == '1' else 'alphabeta'
+        depth = ''
+        while not (depth.isdigit() and 1 <= int(depth) <= 8):
+            depth = input("Profondeur IA pour X (1-8) : ").strip()
+        depths['X'] = int(depth)
+    else:
+        algos['X'] = None
+        depths['X'] = None
+
+    # Joueur O
+    mode = ''
+    while mode not in ['H', 'A']:
+        mode = input("Joueur O : (H)umain ou (A)I ? ").strip().upper()
+    modes['O'] = mode
+    if mode == 'A':
+        algo = ''
+        while algo not in ['1', '2']:
+            algo = input("Algorithme IA pour O ? 1) Minimax 2) Alpha-Beta : ").strip()
+        algos['O'] = 'minimax' if algo == '1' else 'alphabeta'
+        depth = ''
+        while not (depth.isdigit() and 1 <= int(depth) <= 8):
+            depth = input("Profondeur IA pour O (1-8) : ").strip()
+        depths['O'] = int(depth)
+    else:
+        algos['O'] = None
+        depths['O'] = None
 
     board = create_board()
     current = 'X'
-
-    modes = {}
-    for p in ['X','O']:
-        mode = ''
-        while mode not in ['H','A']:
-            mode = input(f"Joueur {p} : (H)umain ou (A)I ? ").strip().upper()
-        modes[p] = mode
-    depth = None
-    if 'A' in modes.values():
-        if use_alphabeta:
-            d = input("Profondeur Alpha-Beta pour l'IA (ex 4): ").strip()
-        else:
-            d = input("Profondeur Minimax pour l'IA (ex 4): ").strip()
-        depth = int(d)
 
     while True:
         print_board(board)
@@ -118,8 +127,8 @@ def play_game():
                 except ValueError:
                     continue
         else:
-            print(f"IA {current} réfléchit... (profondeur {depth})")
-            move = choose_move_ai(board, current, depth, use_alphabeta)
+            print(f"IA {current} réfléchit... (algo: {algos[current]}, profondeur {depths[current]})")
+            move = choose_move_ai(board, current, depths[current], algos[current])
             print(f"IA {current} joue en colonne {move}")
 
         make_move(board, move, current)
