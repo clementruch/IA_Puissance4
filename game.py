@@ -1,5 +1,6 @@
 from typing import List, Optional
 import minimax
+import alphabeta
 from evaluation import evaluate as good_evaluate
 from evaluationBad import simple_evaluate as bad_evaluate
 
@@ -62,8 +63,12 @@ def check_win(board: Board, player: str) -> bool:
     return False
 
 
-def choose_move_ai(board: Board, player: str, depth: int) -> int:
-    score, move = minimax.minimax(board, depth, maximizing_player=(player == 'X'))
+
+def choose_move_ai(board: Board, player: str, depth: int, use_alphabeta: bool = False) -> int:
+    if use_alphabeta:
+        score, move = alphabeta.alphabeta(board, depth, float('-inf'), float('inf'), maximizing_player=(player == 'X'))
+    else:
+        score, move = minimax.minimax(board, depth, maximizing_player=(player == 'X'))
     if move is None:
         raise ValueError("AI n'a pas trouvé de coup valide")
     return move
@@ -81,10 +86,15 @@ def play_game():
         minimax.evaluate = bad_evaluate
         print("Évaluation simple (mauvaise) sélectionnée ! ")
 
+    # Choix de l'algorithme
+    algo_choice = ''
+    while algo_choice not in ['1', '2']:
+        algo_choice = input("Quel algo pour l'IA ? 1) Minimax 2) Alpha-Beta : ").strip()
+    use_alphabeta = (algo_choice == '2')
+
     board = create_board()
     current = 'X'
 
-    # Configuration : humain ou IA
     modes = {}
     for p in ['X','O']:
         mode = ''
@@ -93,10 +103,12 @@ def play_game():
         modes[p] = mode
     depth = None
     if 'A' in modes.values():
-        d = input("Profondeur Minimax pour l'IA (ex 4): ").strip()
+        if use_alphabeta:
+            d = input("Profondeur Alpha-Beta pour l'IA (ex 4): ").strip()
+        else:
+            d = input("Profondeur Minimax pour l'IA (ex 4): ").strip()
         depth = int(d)
 
-    # Boucle principale de jeu
     while True:
         print_board(board)
         if modes[current] == 'H':
@@ -109,12 +121,11 @@ def play_game():
                     continue
         else:
             print(f"IA {current} réfléchit... (profondeur {depth})")
-            move = choose_move_ai(board, current, depth)
+            move = choose_move_ai(board, current, depth, use_alphabeta)
             print(f"IA {current} joue en colonne {move}")
 
         make_move(board, move, current)
 
-        # Vérification de fin
         if check_win(board, current):
             print_board(board)
             print(f"Joueur {current} a gagné !")
