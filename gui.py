@@ -38,8 +38,8 @@ class Connect4GUI:
         # Heuristique
         ttk.Label(self.menu_frame, text="Évaluation:").grid(row=1, column=0, sticky='w')
         self.eval_var = tk.StringVar(value='good')
-        ttk.Radiobutton(self.menu_frame, text='Classique', variable=self.eval_var, value='good').grid(row=2, column=0, sticky='w')
-        ttk.Radiobutton(self.menu_frame, text='Simple', variable=self.eval_var, value='bad').grid(row=3, column=0, sticky='w')
+        ttk.Radiobutton(self.menu_frame, text='Classique (bonne)', variable=self.eval_var, value='good').grid(row=2, column=0, sticky='w')
+        ttk.Radiobutton(self.menu_frame, text='Simple (mauvaise)', variable=self.eval_var, value='bad').grid(row=3, column=0, sticky='w')
         # Algo
         ttk.Label(self.menu_frame, text="Algo IA:").grid(row=4, column=0, pady=(10,0), sticky='w')
         self.algo_var = tk.StringVar(value='minimax')
