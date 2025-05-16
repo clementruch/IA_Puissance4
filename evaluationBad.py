@@ -38,12 +38,12 @@ def simple_evaluate(board: Board) -> int:
         total += simple_score_line(cells)
     return total
 
-# Exemple de test
-if __name__ == "__main__":
-    vide = [[None]*7 for _ in range(6)]
-    test = [row.copy() for row in vide]
-    test[5][2], test[5][3] = 'X', 'X'
-    print("Score simple =", simple_evaluate(test))  # =5
-
-    test[5][4] = 'X'
-    print("Score simple =", simple_evaluate(test))  # toujours =5, car on ignore les 3 en ligne
+# # Exemple de test
+# if __name__ == "__main__":
+#     vide = [[None]*7 for _ in range(6)]
+#     test = [row.copy() for row in vide]
+#     test[5][2], test[5][3] = 'X', 'X'
+#     print("Score simple =", simple_evaluate(test))  # =5
+#
+#     test[5][4] = 'X'
+#     print("Score simple =", simple_evaluate(test))  # toujours =5, car on ignore les 3 en ligne

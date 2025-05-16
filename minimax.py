@@ -1,5 +1,6 @@
 from typing import List, Optional, Tuple
 from evaluation import evaluate
+from evaluationBad import simple_evaluate
 
 Board = List[List[Optional[str]]]
 
