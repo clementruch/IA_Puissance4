@@ -1,6 +1,7 @@
 from typing import List, Optional
-from minimax import minimax
-from evaluation import evaluate
+import minimax
+from evaluation import evaluate as good_evaluate
+from evaluationBad import simple_evaluate as bad_evaluate
 
 Board = List[List[Optional[str]]]
 
@@ -8,11 +9,12 @@ Board = List[List[Optional[str]]]
 def create_board() -> Board:
     return [[None] * 7 for _ in range(6)]
 
-# Affiche le plateau dans la console
+
 def print_board(board: Board) -> None:
+    """Affiche le plateau dans la console."""
     print("\nPlateau :")
     for row in board:
-        print("| "+" | ".join(cell if cell is not None else ' ' for cell in row)+" |")
+        print("| " + " | ".join(cell if cell is not None else ' ' for cell in row) + " |")
     print("  " + "   ".join(str(i) for i in range(7)))
     print()
 
@@ -22,6 +24,7 @@ def get_valid_moves(board: Board) -> List[int]:
 
 
 def make_move(board: Board, col: int, player: str) -> bool:
+    """Joue le pion du joueur dans la colonne donnée. Retourne True si OK."""
     for r in range(5, -1, -1):
         if board[r][col] is None:
             board[r][col] = player
@@ -34,6 +37,7 @@ def is_full(board: Board) -> bool:
 
 
 def check_win(board: Board, player: str) -> bool:
+    """Détecte si le joueur a 4 en ligne."""
     rows, cols = 6, 7
     # horizontales
     for r in range(rows):
@@ -59,13 +63,24 @@ def check_win(board: Board, player: str) -> bool:
 
 
 def choose_move_ai(board: Board, player: str, depth: int) -> int:
-    score, move = minimax(board, depth, maximizing_player=(player=='X'))
+    score, move = minimax.minimax(board, depth, maximizing_player=(player == 'X'))
     if move is None:
         raise ValueError("AI n'a pas trouvé de coup valide")
     return move
 
 
 def play_game():
+    # Choix de la fonction d'évaluation
+    choice = ''
+    while choice not in ['1', '2']:
+        choice = input("Quelle fonction d'évaluation ? 1) classique 2) mauvaise : ").strip()
+    if choice == '1':
+        minimax.evaluate = good_evaluate
+        print("Évaluation classique sélectionnée ! ")
+    else:
+        minimax.evaluate = bad_evaluate
+        print("Évaluation simple (mauvaise) sélectionnée ! ")
+
     board = create_board()
     current = 'X'
 
@@ -81,6 +96,7 @@ def play_game():
         d = input("Profondeur Minimax pour l'IA (ex 4): ").strip()
         depth = int(d)
 
+    # Boucle principale de jeu
     while True:
         print_board(board)
         if modes[current] == 'H':
