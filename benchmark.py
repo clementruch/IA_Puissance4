@@ -131,8 +131,8 @@ def main():
     print("-"*80)
 
     for algo_x, algo_o in scenarios:
-        for depth_x in range(2, 6):
-            for depth_o in range(2, 6):
+        for depth_x in range(2, 7):
+            for depth_o in range(2, 7):
                 metrics = simulate_game(depth_x, depth_o, algo_x, algo_o, eval_func)
                 winner = metrics['winner'] if metrics['winner'] else 'Nul'
                 print(f"{algo_x + ' vs ' + algo_o:15} | {depth_x:6} | {depth_o:6} | {winner:7} | {metrics['total_time']:<15.4f} | {metrics['total_nodes']:<12}")
