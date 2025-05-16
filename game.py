@@ -12,7 +12,6 @@ def create_board() -> Board:
 
 
 def print_board(board: Board) -> None:
-    """Affiche le plateau dans la console."""
     print("\nPlateau :")
     for row in board:
         print("| " + " | ".join(cell if cell is not None else ' ' for cell in row) + " |")
@@ -25,7 +24,6 @@ def get_valid_moves(board: Board) -> List[int]:
 
 
 def make_move(board: Board, col: int, player: str) -> bool:
-    """Joue le pion du joueur dans la colonne donnée. Retourne True si OK."""
     for r in range(5, -1, -1):
         if board[r][col] is None:
             board[r][col] = player
@@ -50,12 +48,12 @@ def check_win(board: Board, player: str) -> bool:
         for r in range(rows - 3):
             if all(board[r+i][c] == player for i in range(4)):
                 return True
-    # diag ↘
+    # diag bas
     for r in range(rows - 3):
         for c in range(cols - 3):
             if all(board[r+i][c+i] == player for i in range(4)):
                 return True
-    # diag ↗
+    # diag haut
     for r in range(3, rows):
         for c in range(cols - 3):
             if all(board[r-i][c+i] == player for i in range(4)):
