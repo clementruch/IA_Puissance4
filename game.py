@@ -3,6 +3,7 @@ import minimax
 import alphabeta
 from evaluation import evaluate as good_evaluate
 from evaluationBad import simple_evaluate as bad_evaluate
+from mcts import mcts
 
 Board = List[List[Optional[str]]]
 
@@ -61,12 +62,22 @@ def check_win(board: Board, player: str) -> bool:
     return False
 
 
-
 def choose_move_ai(board: Board, player: str, depth: int, algo: str) -> int:
     if algo == 'alphabeta':
-        score, move = alphabeta.alphabeta(board, depth, float('-inf'), float('inf'), maximizing_player=(player == 'X'))
+        score, move = alphabeta.alphabeta(
+            board, depth, float('-inf'), float('inf'), maximizing_player=(player == 'X')
+        )
+    elif algo == 'minimax':
+        score, move = minimax.minimax(
+            board, depth, maximizing_player=(player == 'X')
+        )
+    elif algo == 'mcts':
+        # On utilise 'depth' comme nombre de blocs d'itérations (500 iters chacun)
+        iter_max = depth * 500
+        move = mcts(board, player, iter_max=iter_max, C=1.4)
     else:
-        score, move = minimax.minimax(board, depth, maximizing_player=(player == 'X'))
+        raise ValueError(f"Algorithme inconnu: {algo}")
+
     if move is None:
         raise ValueError("AI n'a pas trouvé de coup valide")
     return move
@@ -84,12 +95,14 @@ def play_game():
     modes['X'] = mode
     if mode == 'A':
         algo = ''
-        while algo not in ['1', '2']:
-            algo = input("Algorithme IA pour X ? 1) Minimax 2) Alpha-Beta : ").strip()
-        algos['X'] = 'minimax' if algo == '1' else 'alphabeta'
+        while algo not in ['1', '2', '3']:
+            algo = input(
+                "Algorithme IA pour X ? 1) Minimax 2) Alpha-Beta 3) MCTS : "
+            ).strip()
+        algos['X'] = {'1': 'minimax', '2': 'alphabeta', '3': 'mcts'}[algo]
         depth = ''
         while not (depth.isdigit() and 1 <= int(depth) <= 8):
-            depth = input("Profondeur IA pour X (1-8) : ").strip()
+            depth = input("Profondeur / blocs d'itérations IA pour X (1-8 *500 iter) : ").strip()
         depths['X'] = int(depth)
     else:
         algos['X'] = None
@@ -102,12 +115,14 @@ def play_game():
     modes['O'] = mode
     if mode == 'A':
         algo = ''
-        while algo not in ['1', '2']:
-            algo = input("Algorithme IA pour O ? 1) Minimax 2) Alpha-Beta : ").strip()
-        algos['O'] = 'minimax' if algo == '1' else 'alphabeta'
+        while algo not in ['1', '2', '3']:
+            algo = input(
+                "Algorithme IA pour O ? 1) Minimax 2) Alpha-Beta 3) MCTS : "
+            ).strip()
+        algos['O'] = {'1': 'minimax', '2': 'alphabeta', '3': 'mcts'}[algo]
         depth = ''
         while not (depth.isdigit() and 1 <= int(depth) <= 8):
-            depth = input("Profondeur IA pour O (1-8) : ").strip()
+            depth = input("Profondeur / blocs d'itérations IA pour O (1-8) : ").strip()
         depths['O'] = int(depth)
     else:
         algos['O'] = None
@@ -127,7 +142,9 @@ def play_game():
                 except ValueError:
                     continue
         else:
-            print(f"IA {current} réfléchit... (algo: {algos[current]}, profondeur {depths[current]})")
+            print(
+                f"IA {current} réfléchit... (algo: {algos[current]}, profondeur {depths[current]})"
+            )
             move = choose_move_ai(board, current, depths[current], algos[current])
             print(f"IA {current} joue en colonne {move}")
 
